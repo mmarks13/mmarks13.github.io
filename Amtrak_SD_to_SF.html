@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Amtrak San Diego to San Francisco</title>
+        <script type="text/javascript" src="../d3.js"></script>
+    </head>
+    <h2> Amtrak from San Diego to Emeryville, CA</h2>
+    <body1>
+        <script type="text/javascript">	
+
+    var w = 1300;
+	var h = 750;
+	var barPadding = 1;
+
+	
+	var svg = d3.select("body1")
+			.append("svg")
+			.attr("width",w)
+			.attr("height",h);	
+
+	var xScale = d3.scale.linear()
+			.domain([.25,1])
+			.range([50,w-100]);
+
+	var yScale = d3.scale.linear()
+			.domain([0,600])
+			.range([h-40,30]);
+
+	var lineGen = d3.svg.line()
+		.x(function(d){return xScale(d.Time);})
+		.y(function(d){return yScale(d.Mile);});
+
+	var Scheduled_Route;
+	var Route_Stops;
+	var Actual_Route;
+
+
+	d3.csv("Actual_Route.csv", function(data) {
+		svg.append('svg:path')
+		.data(data)
+		.attr('d', lineGen(data))
+		.attr("fill","none")
+		.attr("stroke","blue")
+		.attr("stroke-width","3")
+		.style("pointer-events", "none");
+	});
+
+	d3.csv("Scheduled_Route2.csv", function(data) {
+		svg.append('svg:path')
+		.data(data)
+		.attr('d', lineGen(data))
+		.attr("fill","none")
+		.attr("stroke","lightblue")
+		.style("pointer-events", "none");
+		});
+
+var Main_Mile_Markers = [.05,125,228,345,548,589];
+var Main_Stops = ["San Diego","Los Angeles","Santa Barbara","San Luis Obispo","San Jose","Emeryville"];
+
+
+var City_Label_Data = [ [0,"San Diego"], [125,"Los Angeles"],[228,"Santa Barbara"],[345,"San Luis Obispo"],[548,"San Jose"],[589,"Oakland"]];
+
+
+	svg.selectAll("line")
+	.data(Main_Mile_Markers)
+	.enter().append("svg:line")
+	.attr('x1',xScale(.25))
+	.attr('x2',xScale(1))
+	.attr('y1',function(d){return yScale(d);})
+	.attr('y2',function(d){return yScale(d);})
+	.style("stroke", "grey")
+	.style("stroke-width", 2)
+	.on("mouseover", function(){
+		d3.select(this)
+		.style("stroke","black")
+		.style("stroke-width", 4)
+	})	
+	.on("mouseout", function(){
+		d3.select(this)
+	.style("stroke", "grey")
+	.style("stroke-width", 2)
+	});
+
+	svg.selectAll("text")
+	.data(City_Label_Data)
+	.enter().append("svg:text")
+	.text(function(d){return d[1]+ " - "+ d[0] + " Miles";})
+	.attr('x',xScale(.93))
+	.attr('y',function(d){return yScale(d[0]+3);})
+	.attr("text-anchor","left");
+
+ 	var Times = [[0.25,"6:00 AM"]
+ 	,[0.33,"8:00 AM"]
+ 	,[0.42,"10:00 AM"]
+ 	,[0.50,"12:00 AM"]
+ 	,[0.58,"2:00 PM"]
+ 	,[0.67,"4:00 PM"]
+ 	,[0.75,"6:00 PM"]
+ 	,[0.83,"8:00 PM"]
+ 	,[0.92,"10:00 PM"]];
+
+
+ 	var numTimes = [0.25
+ 	,0.33
+ 	,0.42
+ 	,0.50
+ 	,0.58
+ 	,0.67
+ 	,0.75
+ 	,0.83
+ 	,0.92];
+
+
+ 	svg.selectAll("line.Time")
+ 	.data(numTimes)
+ 	.enter().append("svg:line")
+ 	.attr('x1',function(d){return xScale(d);})
+ 	.attr('x2',function(d){return xScale(d);})
+ 	.attr('y1',yScale(0))
+ 	.attr('y2',yScale(600))
+ 	.style("stroke", "lightgrey")
+ 	.style("stroke-width", .8);
+
+ 	svg.selectAll("text.Time")
+ 	.data(Times)
+ 	.enter().append("svg:text")
+ 	.text(function(d){return d[1]})
+ 	.attr('y',yScale(-20))
+ 	.attr('x',function(d){return xScale(d[0]);})
+ 	.attr("text-anchor","middle");
+
+	var Minor_Stops =[[22,"Solana Beach"],
+	[38,"Oceanside"],
+	[67,"San Juan Capistrano"],
+	[79,"Irvine"],
+	[89,"Santa Ana"],
+	[94,"Anaheim"],
+	[99,"Fullerton"],
+	[139,"Burbank"],
+	[144,"Van Nuys"],
+	[161,"Simi Valley"],
+	[192,"Oxnard"],
+	[383,"Pasa Robles"],
+	[481,"Salinas"],
+	[594,"Emeryville"]]
+	
+	svg.selectAll("Minor_Stops")
+	.data(Minor_Stops)
+	.enter().append("svg:line")
+	.attr('x1',xScale(.25))
+	.attr('x2',xScale(.92))
+	.attr('y1',function(d){return yScale(d[0]);})
+	.attr('y2',function(d){return yScale(d[0]);})
+	.style("stroke", "lightgrey")
+	.style("stroke-width", 1.6)
+	.on("mouseover", function(d){
+		d3.select(this)
+		.style("stroke","black")
+		.style("stroke-width", 2.5)
+		svg.append("text") 
+		.attr("id", "tooltip") 
+		.attr("x", xScale(.919)) 
+		.attr("y", yScale(d[0]+2)) 
+		.attr("text-anchor", "middle") 
+		.attr("font-family", "sans-serif") 
+		.attr("font-size", "11px") 
+		.attr("font-weight", "bold") 
+		.attr("fill", "black") 
+		.attr("text-anchor","end")
+		.text(d[1] + " - "+ d[0] + " Miles");
+	})	
+	.on("mouseout", function(){
+		d3.select(this)
+		.style("stroke", "lightgrey")
+		.style("stroke-width", 1)
+		d3.select("#tooltip").remove();
+	})
+
+	svg.selectAll("Minor_Stops")
+	.data(Minor_Stops)
+	.enter().append("svg:text")
+	.text(function(d){return d[1] + " - "+ d[0];})
+	.attr('x',xScale(.1))
+	.attr('y',function(d){return yScale(d[0]+2);})
+	.attr("text-anchor","end")
+	.attr("font-size","8");
+
+
+
+
+	</script>
+
+
+    </body1>
+
+
+
+</html>
